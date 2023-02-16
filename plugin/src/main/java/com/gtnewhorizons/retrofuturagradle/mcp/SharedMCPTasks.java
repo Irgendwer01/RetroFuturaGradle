@@ -112,13 +112,20 @@ public class SharedMCPTasks<McExtType extends IMinecraftyExtension> {
         });
 
         final File userdevRoot = Utilities.getRawCacheDir(project, "minecraft", "net", "minecraftforge", "forge");
-        final Provider<Directory> userdevRootProvider = project.getLayout().dir(mcExt.getMcVersion().map(mcVer -> {
-            if (mcVer.equals("1.7.10")) {
-                return FileUtils.getFile(userdevRoot, "1.7.10-10.13.4.1614-1.7.10");
-            } else {
-                throw new UnsupportedOperationException("Currently only minecraft 1.7.10 is supported.");
-            }
-        }));
+            final Provider<Directory> userdevRootProvider = project.getLayout().dir(mcExt.getMcVersion().map(mcVer -> {
+                switch (mcVer) {
+                    case "1.12.2" -> {
+                        return FileUtils.getFile(userdevRoot, "1.12.2-14.23.5.2847");
+                    }
+                    case "1.10.2" -> {
+                        return FileUtils.getFile(userdevRoot, "1.10.2-12.18.3.2511");
+                    }
+                    case "1.7.10" -> {
+                        return FileUtils.getFile(userdevRoot, "1.7.10-10.13.4.1614-1.7.10");
+                    }
+                    default -> throw new UnsupportedOperationException("Currently only 1.7.10, 1.12.2 and 1.10.2 are supported.");
+                }
+            }));
         final Provider<Directory> userdevExtractRoot = userdevRootProvider.map(root -> root.dir("unpacked"));
         taskExtractForgeUserdev = project.getTasks().register("extractForgeUserdev", Copy.class, task -> {
             task.getOutputs().upToDateWhen(t -> {
@@ -140,6 +147,7 @@ public class SharedMCPTasks<McExtType extends IMinecraftyExtension> {
                     task.setGroup(TASK_GROUP_INTERNAL);
                     task.dependsOn(taskExtractMcpData, taskExtractForgeUserdev);
                     // inputs
+                    //TODO: Find out how exactly this works in 1.12.2 and 1.10.2
                     task.getInputSrg().set(userdevFile("conf/packaged.srg"));
                     task.getInputExc().set(userdevFile("conf/packaged.exc"));
                     task.getFieldsCsv().set(

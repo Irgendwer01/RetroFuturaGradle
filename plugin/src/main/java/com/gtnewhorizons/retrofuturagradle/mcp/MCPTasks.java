@@ -719,19 +719,25 @@ public class MCPTasks extends SharedMCPTasks<MinecraftExtension> {
 
     private void afterEvaluate() {
         final DependencyHandler deps = project.getDependencies();
-
         deps.addProvider(
                 mcpMappingDataConfiguration.getName(),
                 mcExt.mapMcpVersions(
-                        (mcVer, mcpChan, mcpVer) -> ImmutableMap.of(
-                                "group",
-                                "de.oceanlabs.mcp",
-                                "name",
-                                "mcp_" + mcpChan,
-                                "version",
-                                mcpVer + "-" + mcVer,
-                                "ext",
-                                "zip")));
+                        (mcVer, mcpChan, mcpVer) -> {
+                            final String mcpMCVer = switch(mcVer) {
+                                case "1.12.2" -> "1.12";
+                                case "1.10.2" -> "1.10";
+                                default -> mcVer;
+                            };
+                            return ImmutableMap.of(
+                                    "group",
+                                    "de.oceanlabs.mcp",
+                                    "name",
+                                    "mcp_" + mcpChan,
+                                    "version",
+                                    mcpVer + "-" + mcpMCVer,
+                                    "ext",
+                                    "zip");
+                        }));
 
         if (mcExt.getSkipSlowTasks().get()) {
             taskDeobfuscateMergedJarToSrg

@@ -52,6 +52,10 @@ public interface IMinecraftyExtension {
     // MCP configs
 
     /**
+     *
+     */
+
+    /**
      * stable/snapshot
      */
     public abstract Property<String> getMcpMappingChannel();
@@ -84,7 +88,7 @@ public interface IMinecraftyExtension {
     public abstract Property<Integer> getMainLwjglVersion();
 
     default void applyMinecraftyConventions(ObjectFactory objects) {
-        getMcVersion().convention("1.7.10");
+        getMcVersion().convention("1.12.2");
         getMcVersion().finalizeValueOnRead();
         getApplyMcDependencies().convention(Boolean.TRUE);
         getApplyMcDependencies().finalizeValueOnRead();
@@ -104,7 +108,7 @@ public interface IMinecraftyExtension {
 
         getMcpMappingChannel().convention("stable");
         getMcpMappingChannel().finalizeValueOnRead();
-        getMcpMappingVersion().convention("12");
+        getMcpMappingVersion().convention("39");
         getMcpMappingVersion().finalizeValueOnRead();
         getUseForgeEmbeddedMappings().convention(true);
         getUseForgeEmbeddedMappings().finalizeValueOnRead();
@@ -127,9 +131,10 @@ public interface IMinecraftyExtension {
     }
 
     default Provider<String> getForgeVersion() {
-        return getMcVersion().map(mcVer -> switch (mcVer) {
+            return getMcVersion().map(mcVer -> switch (mcVer) {
             case "1.7.10" -> "1.7.10-10.13.4.1614-1.7.10";
             case "1.12.2" -> "1.12.2-14.23.5.2847";
+            case "1.10.2" -> "1.10.2-12.18.3.2511";
             default -> throw new UnsupportedOperationException();
         });
     }

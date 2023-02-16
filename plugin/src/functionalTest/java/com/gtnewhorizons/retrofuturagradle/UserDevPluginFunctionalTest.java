@@ -25,7 +25,7 @@ class UserDevPluginFunctionalTest {
             + "}\n"
             + "\n"
             + "minecraft {\n"
-            + "  mcVersion = '1.7.10'\n"
+            + "mcVersion = '1.12.2'\n"
             + "}\n";
 
     @TempDir
