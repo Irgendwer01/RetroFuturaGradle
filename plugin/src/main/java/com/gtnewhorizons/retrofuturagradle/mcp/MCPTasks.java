@@ -210,7 +210,7 @@ public class MCPTasks extends SharedMCPTasks<MinecraftExtension> {
                 .getFile(project.getBuildDir(), RFG_DIR, "mcp_patched_minecraft-sources.jar");
         taskRemapDecompiledJar = project.getTasks().register("remapDecompiledJar", RemapSourceJarTask.class, task -> {
             task.setGroup(TASK_GROUP_INTERNAL);
-            task.dependsOn(taskPatchDecompiledJar, taskExtractForgeUserdev, taskExtractMcpData);
+            task.dependsOn(taskPatchDecompiledJar, taskExtractForgeUserdev, taskExtractMcpMappings, taskExtractMcpData);
             task.getBinaryJar().set(taskDecompileSrgJar.flatMap(IJarTransformTask::getInputJar));
             task.getInputJar().set(taskPatchDecompiledJar.flatMap(IJarOutputTask::getOutputJar));
             task.getOutputJar().set(remappedSourcesLocation);
@@ -307,6 +307,7 @@ public class MCPTasks extends SharedMCPTasks<MinecraftExtension> {
                 .register("createMcLauncherFiles", CreateLauncherFiles.class, task -> {
                     task.setGroup(TASK_GROUP_INTERNAL);
                     task.dependsOn(
+                            taskExtractMcpMappings,
                             taskExtractMcpData,
                             taskExtractForgeUserdev,
                             mcTasks.getTaskExtractNatives(mcExt.getMainLwjglVersion()));
@@ -460,6 +461,7 @@ public class MCPTasks extends SharedMCPTasks<MinecraftExtension> {
                 task.setGroup(TASK_GROUP_USER);
                 task.setDescription("Reobfuscate the output of the `" + subjectTaskName + "` task to SRG mappings");
                 task.dependsOn(
+                        taskExtractMcpMappings,
                         taskExtractMcpData,
                         taskExtractForgeUserdev,
                         taskGenerateForgeSrgMappings,
@@ -719,6 +721,21 @@ public class MCPTasks extends SharedMCPTasks<MinecraftExtension> {
 
     private void afterEvaluate() {
         final DependencyHandler deps = project.getDependencies();
+        deps.addProvider(
+                mcpDataConfiguration.getName(),
+                mcExt.getMcVersion().map(mcVer ->
+                        ImmutableMap.of(
+                        "group",
+                        "de.oceanlabs.mcp",
+                        "name",
+                        "mcp",
+                        "version",
+                        mcVer,
+                        "classifier",
+                        "srg",
+                        "ext",
+                        "zip"
+        )));
         deps.addProvider(
                 mcpMappingDataConfiguration.getName(),
                 mcExt.mapMcpVersions(
